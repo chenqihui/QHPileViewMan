@@ -7,8 +7,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import "Masonry.h"
-
 #import "QHPileViewMan.h"
 
 NS_ASSUME_NONNULL_BEGIN

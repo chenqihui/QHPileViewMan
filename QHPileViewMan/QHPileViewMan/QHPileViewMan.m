@@ -7,8 +7,6 @@
 
 #import "QHPileViewMan.h"
 
-#import "Masonry.h"
-
 #import "UIView+QHPileView.h"
 
 @interface QHPileViewMan ()
@@ -276,7 +274,7 @@
                         if (layout == QHPileViewManLayoutTopLeft || layout == QHPileViewManLayoutTopRight) {
                             for (NSString *last_pile_key in lastPiles) {
                                 UIView *v = self.pileViewDic[layoutKey][last_pile_key];
-                                MASConstraint *c = make.top.lessThanOrEqualTo(v.mas_bottom);
+                                MASConstraint *c = make.top.greaterThanOrEqualTo(v.mas_bottom);
                                 [constraints addObject:c];
                             }
                         }

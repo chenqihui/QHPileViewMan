@@ -79,7 +79,7 @@
     view.hidden = YES;
     BOOL ret = [view cqh_makePile:self.pileMan layout:layout pile:key];
     if (!ret) {
-        NSLog(@"cqh_makePile error");
+        NSLog(@"cqh_makePile error>%lu>%@", (unsigned long)layout, key);
     }
     
     UILabel *titleL = [UILabel new];
