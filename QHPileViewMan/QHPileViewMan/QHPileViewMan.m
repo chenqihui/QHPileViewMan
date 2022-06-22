@@ -120,7 +120,9 @@
     [v removeFromSuperview];
     [self.superV addSubview:v];
     
-    [self p_point:v pile:pileV show:NO];
+    [v mas_remakeConstraints:^(MASConstraintMaker *make) {
+        [self p_point:v pile:pileV make:make show:NO];
+    }];
     
     return YES;
 }
@@ -136,7 +138,9 @@
     UIView *pileV = [self p_pileV:v];
     if (pileV == nil) { return; }
     
-    [self p_point:v pile:pileV show:YES];
+    [v mas_updateConstraints:^(MASConstraintMaker *make) {
+        [self p_point:v pile:pileV make:make show:YES];
+    }];
     
     NSDictionary *subCfgDic = self.pileKeyLayoutSubCfgDic[v.cqhLayoutKey][v.cqhPileKey];
     [pileV mas_remakeConstraints:^(MASConstraintMaker *make) {
@@ -154,7 +158,9 @@
     UIView *pileV = [self p_pileV:v];
     if (pileV == nil) { return; }
     
-    [self p_point:v pile:pileV show:NO];
+    [v mas_updateConstraints:^(MASConstraintMaker *make) {
+        [self p_point:v pile:pileV make:make show:NO];
+    }];
     
     [pileV mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.width.mas_equalTo(0).mas_offset(0);
@@ -317,27 +323,25 @@
     return pileV;
 }
 
-- (void)p_point:(UIView *)v pile:(UIView *)pileV show:(BOOL)bShow {
+- (void)p_point:(UIView *)v pile:(UIView *)pileV make:(MASConstraintMaker *)make show:(BOOL)bShow {
     NSDictionary *subCfgDic = self.pileKeyLayoutSubCfgDic[v.cqhLayoutKey][v.cqhPileKey];
     NSUInteger layoutType = [v.cqhLayoutKey integerValue];
-    [v mas_remakeConstraints:^(MASConstraintMaker *make) {
-        if (layoutType == QHPileViewManLayoutTopLeft) {
-            make.top.equalTo(pileV).mas_offset(bShow && subCfgDic ? [subCfgDic[@"t"] integerValue] : 0);
-            make.left.equalTo(pileV).mas_offset(bShow && subCfgDic ? [subCfgDic[@"l"] integerValue] : 0);
-        }
-        else if (layoutType == QHPileViewManLayoutTopRight) {
-            make.top.equalTo(pileV).mas_offset(bShow && subCfgDic ? [subCfgDic[@"t"] integerValue] : 0);
-            make.right.equalTo(pileV).mas_offset(-(bShow && subCfgDic ? [subCfgDic[@"r"] integerValue] : 0));
-        }
-        else if (layoutType == QHPileViewManLayoutBottomLeft) {
-            make.bottom.equalTo(pileV).mas_offset(-(bShow && subCfgDic ? [subCfgDic[@"b"] integerValue] : 0));
-            make.left.equalTo(pileV).mas_offset(bShow && subCfgDic ? [subCfgDic[@"l"] integerValue] : 0);
-        }
-        else if (layoutType == QHPileViewManLayoutBottomRight) {
-            make.bottom.equalTo(pileV).mas_offset(-(bShow && subCfgDic ? [subCfgDic[@"b"] integerValue] : 0));
-            make.right.equalTo(pileV).mas_offset(-(bShow && subCfgDic ? [subCfgDic[@"r"] integerValue] : 0));
-        }
-    }];
+    if (layoutType == QHPileViewManLayoutTopLeft) {
+        make.top.equalTo(pileV).mas_offset(bShow && subCfgDic ? [subCfgDic[@"t"] integerValue] : 0);
+        make.left.equalTo(pileV).mas_offset(bShow && subCfgDic ? [subCfgDic[@"l"] integerValue] : 0);
+    }
+    else if (layoutType == QHPileViewManLayoutTopRight) {
+        make.top.equalTo(pileV).mas_offset(bShow && subCfgDic ? [subCfgDic[@"t"] integerValue] : 0);
+        make.right.equalTo(pileV).mas_offset(-(bShow && subCfgDic ? [subCfgDic[@"r"] integerValue] : 0));
+    }
+    else if (layoutType == QHPileViewManLayoutBottomLeft) {
+        make.bottom.equalTo(pileV).mas_offset(-(bShow && subCfgDic ? [subCfgDic[@"b"] integerValue] : 0));
+        make.left.equalTo(pileV).mas_offset(bShow && subCfgDic ? [subCfgDic[@"l"] integerValue] : 0);
+    }
+    else if (layoutType == QHPileViewManLayoutBottomRight) {
+        make.bottom.equalTo(pileV).mas_offset(-(bShow && subCfgDic ? [subCfgDic[@"b"] integerValue] : 0));
+        make.right.equalTo(pileV).mas_offset(-(bShow && subCfgDic ? [subCfgDic[@"r"] integerValue] : 0));
+    }
 }
 
 #pragma mark - Util
