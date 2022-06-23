@@ -23,6 +23,8 @@
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, UIView *> *> *pileViewDic;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, NSMutableArray<MASConstraint *> *> *> *pileConstraintsDic;
 
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSDictionary<NSString *, NSNumber *> *> *pileEdgeDic;
+
 @end
 
 @implementation QHPileViewMan
@@ -79,6 +81,11 @@
 }
 
 #pragma mark - Public
+
+- (void)setGlobalPile:(QHPileViewManLayout)layout edge:(UIEdgeInsets)edge {
+    NSDictionary *dic = @{@"t": @(edge.top), @"l": @(edge.left), @"b": @(edge.bottom), @"r": @(edge.right)};
+    [self.pileEdgeDic setValue:dic forKey:[NSString stringWithFormat:@"%lu", (unsigned long)layout]];
+}
 
 - (void)clean {
     NSDictionary *pileCfgDic = self.pileKeyLayoutDic;
@@ -143,6 +150,9 @@
     }];
     
     NSDictionary *subCfgDic = self.pileKeyLayoutSubCfgDic[v.cqhLayoutKey][v.cqhPileKey];
+    if (subCfgDic == nil || subCfgDic.count <= 0) {
+        subCfgDic = self.pileEdgeDic[v.cqhLayoutKey];
+    }
     [pileV mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.width.equalTo(v.mas_width).mas_offset(subCfgDic ? ([subCfgDic[@"l"] integerValue] + [subCfgDic[@"r"] integerValue]) : 0);
         make.height.equalTo(v.mas_height).mas_offset(subCfgDic ? ([subCfgDic[@"t"] integerValue] + [subCfgDic[@"b"] integerValue]) : 0);
@@ -190,6 +200,7 @@
     
     _pileKeyLayoutDic = [NSMutableDictionary new];
     _pileKeyLayoutSubCfgDic = [NSMutableDictionary new];
+    _pileEdgeDic = [NSMutableDictionary new];
     
     NSArray *layoutKeys = @[[NSString stringWithFormat:@"%lu", (unsigned long)QHPileViewManLayoutTopLeft],
                             [NSString stringWithFormat:@"%lu", (unsigned long)QHPileViewManLayoutTopRight],
@@ -256,7 +267,8 @@
             
             for (int j = 0; j < piles.count; j++) {
                 UIView *pileV = [UIView new];
-                pileV.backgroundColor = [UIColor blackColor];
+                pileV.backgroundColor = [UIColor clearColor];
+                pileV.userInteractionEnabled = NO;
                 [superV addSubview:pileV];
                 NSMutableArray<MASConstraint *> *constraints = [NSMutableArray new];
 //                NSLog(@"chen>%i>%i", i, j);
@@ -324,23 +336,32 @@
 }
 
 - (void)p_point:(UIView *)v pile:(UIView *)pileV make:(MASConstraintMaker *)make show:(BOOL)bShow {
-    NSDictionary *subCfgDic = self.pileKeyLayoutSubCfgDic[v.cqhLayoutKey][v.cqhPileKey];
+    NSDictionary *subCfgDic = nil;
+    if (bShow) {
+        subCfgDic = self.pileKeyLayoutSubCfgDic[v.cqhLayoutKey][v.cqhPileKey];
+        if (subCfgDic == nil || subCfgDic.count <= 0) {
+            subCfgDic = self.pileEdgeDic[v.cqhLayoutKey];
+        }
+    }
     NSUInteger layoutType = [v.cqhLayoutKey integerValue];
+    if ([v.cqhPileKey isEqualToString:@"beauty"]) {
+        NSLog(@"1");
+    }
     if (layoutType == QHPileViewManLayoutTopLeft) {
-        make.top.equalTo(pileV).mas_offset(bShow && subCfgDic ? [subCfgDic[@"t"] integerValue] : 0);
-        make.left.equalTo(pileV).mas_offset(bShow && subCfgDic ? [subCfgDic[@"l"] integerValue] : 0);
+        make.top.equalTo(pileV).mas_offset(subCfgDic ? [subCfgDic[@"t"] integerValue] : 0);
+        make.left.equalTo(pileV).mas_offset(subCfgDic ? [subCfgDic[@"l"] integerValue] : 0);
     }
     else if (layoutType == QHPileViewManLayoutTopRight) {
-        make.top.equalTo(pileV).mas_offset(bShow && subCfgDic ? [subCfgDic[@"t"] integerValue] : 0);
-        make.right.equalTo(pileV).mas_offset(-(bShow && subCfgDic ? [subCfgDic[@"r"] integerValue] : 0));
+        make.top.equalTo(pileV).mas_offset(subCfgDic ? [subCfgDic[@"t"] integerValue] : 0);
+        make.right.equalTo(pileV).mas_offset(-(subCfgDic ? [subCfgDic[@"r"] integerValue] : 0));
     }
     else if (layoutType == QHPileViewManLayoutBottomLeft) {
-        make.bottom.equalTo(pileV).mas_offset(-(bShow && subCfgDic ? [subCfgDic[@"b"] integerValue] : 0));
-        make.left.equalTo(pileV).mas_offset(bShow && subCfgDic ? [subCfgDic[@"l"] integerValue] : 0);
+        make.bottom.equalTo(pileV).mas_offset(-(subCfgDic ? [subCfgDic[@"b"] integerValue] : 0));
+        make.left.equalTo(pileV).mas_offset(subCfgDic ? [subCfgDic[@"l"] integerValue] : 0);
     }
     else if (layoutType == QHPileViewManLayoutBottomRight) {
-        make.bottom.equalTo(pileV).mas_offset(-(bShow && subCfgDic ? [subCfgDic[@"b"] integerValue] : 0));
-        make.right.equalTo(pileV).mas_offset(-(bShow && subCfgDic ? [subCfgDic[@"r"] integerValue] : 0));
+        make.bottom.equalTo(pileV).mas_offset(-(subCfgDic ? [subCfgDic[@"b"] integerValue] : 0));
+        make.right.equalTo(pileV).mas_offset(-(subCfgDic ? [subCfgDic[@"r"] integerValue] : 0));
     }
 }
 
