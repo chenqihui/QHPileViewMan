@@ -63,7 +63,8 @@
     
     UIEdgeInsets edge = UIEdgeInsetsMake(20, 20, 20, 20);
     
-    self.pileMan = [[QHPileViewMan alloc] initWith:self.view make:pileMake edge:edge];
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"QHPileViewManDemo" ofType:@"json"];
+    self.pileMan = [[QHPileViewMan alloc] initWith:self.view make:pileMake edge:edge path:path];
     [self.pileMan setGlobalPile:QHPileViewManLayoutTopRight edge:UIEdgeInsetsMake(20, 0, 0, 0)];
     self.viewKeys = [self.pileMan.pileKeys copy];
 

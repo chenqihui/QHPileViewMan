@@ -19,6 +19,7 @@
 @property (nonatomic, weak) UIView *superV;
 @property (nonatomic, strong) UIView *topView;
 @property (nonatomic, strong) UIView *bottomView;
+@property (nonatomic, copy) NSString *jsonPath;
 
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, UIView *> *> *pileViewDic;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, NSMutableArray<MASConstraint *> *> *> *pileConstraintsDic;
@@ -29,10 +30,15 @@
 
 @implementation QHPileViewMan
 
-- (instancetype)initWith:(UIView *)superV make:(struct QHPileViewMake)pileMake edge:(UIEdgeInsets)edge {
+- (instancetype)initWith:(UIView *)superV make:(struct QHPileViewMake)pileMake edge:(UIEdgeInsets)edge path:(NSString *)jsonPath {
     self = [super init];
     if (self) {
+        if (!superV || !jsonPath) {
+            NSLog(@"%s:初始化失败", __func__);
+            return nil;
+        }
         self.superV = superV;
+        self.jsonPath = jsonPath;
         UIView *topPileV = [UIView new];
         topPileV.backgroundColor = [UIColor orangeColor];
         [superV addSubview:topPileV];
@@ -193,7 +199,7 @@
 }
 
 - (void)p_makePileCfgs {
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"QHPileViewManDemo" ofType:@"json"];
+    NSString *path = self.jsonPath;
     NSData *data = [NSData dataWithContentsOfFile:path];
     id obj = [self json2Obj:data];
     _pileCfgs = [obj mutableCopy];

@@ -30,7 +30,7 @@ typedef enum : NSUInteger {
 
 @property (nonatomic, strong, readonly) NSArray *pileKeys;
 
-- (instancetype)initWith:(UIView *)superV make:(struct QHPileViewMake)pileMake edge:(UIEdgeInsets)edge;
+- (instancetype)initWith:(UIView *)superV make:(struct QHPileViewMake)pileMake edge:(UIEdgeInsets)edge path:(NSString *)jsonPath;
 - (void)setGlobalPile:(QHPileViewManLayout)layout edge:(UIEdgeInsets)edge;
 - (void)clean;
 - (BOOL)check:(NSString *)layoutKey p:(NSString *)pileKey;
