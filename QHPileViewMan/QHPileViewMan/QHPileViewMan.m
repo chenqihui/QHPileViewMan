@@ -291,7 +291,7 @@
                         else if (layout == QHPileViewManLayoutBottomLeft || layout == QHPileViewManLayoutBottomRight) {
                             for (NSString *last_pile_key in lastPiles) {
                                 UIView *v = self.pileViewDic[layoutKey][last_pile_key];
-                                MASConstraint *c = make.bottom.lessThanOrEqualTo(v.mas_top);
+                                MASConstraint *c = make.bottom.greaterThanOrEqualTo(v.mas_top);
                                 [constraints addObject:c];
                             }
                         }
