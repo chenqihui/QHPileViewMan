@@ -151,7 +151,7 @@
 }
 
 - (void)showV:(UIView *)v {
-    if (v == nil) { return; }
+    if (v == nil || v.superview == nil) { return; }
     UIView *pileV = [self p_pileV:v];
     if (pileV == nil) { return; }
     
@@ -174,7 +174,7 @@
 }
 
 - (void)hideV:(UIView *)v {
-    if (v == nil) { return; }
+    if (v == nil || v.superview == nil) { return; }
     UIView *pileV = [self p_pileV:v];
     if (pileV == nil) { return; }
     

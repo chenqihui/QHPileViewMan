@@ -100,7 +100,7 @@
     // Left
     UIView *demo1 = [self p_makeV:@"demo1" layout:QHPileViewManLayoutTopLeft];
     BOOL ret = NO;
-    demo1.cqh_addPile(nil).cqh_showPile(YES).cqh_updateSize(CGSizeMake(60, 20)).hidden = NO;
+    demo1.cqh_addPile(nil).cqh_hidePile(NO).cqh_updateSize(CGSizeMake(60, 20));
     
     [self p_makeV:@"try" layout:QHPileViewManLayoutTopLeft];
     [self p_makeV:@"link" layout:QHPileViewManLayoutTopLeft];
@@ -110,7 +110,7 @@
     // Right
     UIView *demo2 = [self p_makeV:@"demo2" layout:QHPileViewManLayoutTopRight];
     ret = NO;
-    demo2.cqh_addPile(&ret).cqh_showPile(YES).cqh_updateSize(CGSizeMake(60, 20)).hidden = !ret;
+    demo2.cqh_addPile(&ret).cqh_hidePile(NO).cqh_updateSize(CGSizeMake(60, 20));
     
     // viewSeries
     // viewAd
@@ -131,8 +131,7 @@
         if (view) {
             if ([view cqh_directCheckPile]) {
                 BOOL ret = NO;
-                view.cqh_addPile(&ret).cqh_showPile(YES).cqh_updateSize(CGSizeMake(60, 20));
-                view.hidden = !ret;
+                view.cqh_addPile(&ret).cqh_hidePile(NO).cqh_updateSize(CGSizeMake(60, 20));
             }
         }
     }
@@ -244,15 +243,15 @@
     }
     view.cqhLayoutKey = layoutKey;
     
-    BOOL bShow = sc4.selectedSegmentIndex == 0;
+    BOOL bHide = !(sc4.selectedSegmentIndex == 0);
     if (sc3.selectedSegmentIndex == 0) {
         if ([view cqh_directCheckPile]) {
             BOOL ret = NO;
-            view.cqh_addPile(&ret).cqh_showPile(bShow).cqh_updateSize(CGSizeMake(_slider.value * 2, _slider.value)).hidden = !bShow;
+            view.cqh_addPile(&ret).cqh_hidePile(bHide).cqh_updateSize(CGSizeMake(_slider.value * 2, _slider.value));
         }
     }
     else {
-        view.cqh_showPile(bShow).cqh_removePile();
+        view.cqh_hidePile(bHide).cqh_removePile();
     }
     
 }

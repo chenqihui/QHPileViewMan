@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 //- (UIView * (^)(BOOL * _Nullable ret))cqh_checkPile;
 - (UIView * (^)(BOOL * _Nullable ret))cqh_addPile;
 - (UIView * (^)(void))cqh_removePile;
-- (UIView * (^)(BOOL))cqh_showPile;
+- (UIView * (^)(BOOL))cqh_hidePile;
 - (UIView * (^)(CGSize))cqh_updateSize;
 
 @end

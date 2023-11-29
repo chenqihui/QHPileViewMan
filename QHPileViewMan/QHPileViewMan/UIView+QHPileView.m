@@ -99,14 +99,15 @@ static const char *CQHPileManKey = "CQHPileManKey";
     };
 }
 
-- (UIView * (^)(BOOL))cqh_showPile {
-    return ^id(BOOL bShow) {
-        if (bShow) {
-            [self.cqhPileMan showV:self];
-        }
-        else {
+- (UIView * (^)(BOOL))cqh_hidePile {
+    return ^id(BOOL bHide) {
+        if (bHide) {
             [self.cqhPileMan hideV:self];
         }
+        else {
+            [self.cqhPileMan showV:self];
+        }
+        self.hidden = bHide;
         return self;
     };
 }
