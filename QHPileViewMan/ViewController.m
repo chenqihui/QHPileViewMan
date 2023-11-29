@@ -227,6 +227,13 @@
     UISegmentedControl *sc3 = [self.testView viewWithTag:kSegCtrTag + 3];
     UISegmentedControl *sc4 = [self.testView viewWithTag:kSegCtrTag + 4];
     
+    if (sc1.selectedSegmentIndex < 0 ||
+        sc2.selectedSegmentIndex < 0 ||
+        sc3.selectedSegmentIndex < 0 ||
+        sc4.selectedSegmentIndex < 0) {
+        return;
+    }
+    
     // 找到对应的 view
     UIView *view = self.viewDic[self.viewKeys[sc1.selectedSegmentIndex]];
     
