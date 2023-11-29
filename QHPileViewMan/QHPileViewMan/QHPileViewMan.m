@@ -31,6 +31,10 @@
 @implementation QHPileViewMan
 
 - (instancetype)initWith:(UIView *)superV make:(struct QHPileViewMake)pileMake edge:(UIEdgeInsets)edge path:(NSString *)jsonPath {
+    return [self initWith:superV make:pileMake edge:edge path:jsonPath bLeftAlign:NO];
+}
+
+- (instancetype)initWith:(UIView *)superV make:(struct QHPileViewMake)pileMake edge:(UIEdgeInsets)edge path:(NSString *)jsonPath bLeftAlign:(BOOL)bLeft {
     self = [super init];
     if (self) {
         if (!superV || !jsonPath) {
@@ -51,7 +55,7 @@
                 make.top.equalTo(topPileV.superview).mas_offset(edge.top);
             }
             if (pileMake.leftV) {
-                make.left.equalTo(pileMake.leftV).mas_offset(edge.left);
+                make.left.equalTo(bLeft ? pileMake.leftV.mas_right : pileMake.leftV).mas_offset(edge.left);
             }
             else {
                 make.left.equalTo(topPileV.superview).mas_offset(edge.left);
@@ -188,6 +192,26 @@
     }
 }
 
+- (void)test {
+    [self.topView mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.width.height.mas_equalTo(10);
+    }];
+    [self.bottomView mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.width.height.mas_equalTo(10);
+    }];
+}
+
+- (void)updateTopPile:(UIView *)leftV edge:(CGFloat)w {
+    [self.topView mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(leftV).mas_offset(w);
+    }];
+}
+
+- (UIView *)getPile:(NSString *)layoutKey pileKey:(NSString *)pileKey {
+    UIView *pileV = self.pileViewDic[layoutKey][pileKey];
+    return pileV;
+}
+
 #pragma mark - Private
 
 - (void)p_setup {
@@ -282,17 +306,35 @@
                 [pileV mas_makeConstraints:^(MASConstraintMaker *make) {
                     if (lastPiles) {
                         if (layout == QHPileViewManLayoutTopLeft || layout == QHPileViewManLayoutTopRight) {
-                            for (NSString *last_pile_key in lastPiles) {
-                                UIView *v = self.pileViewDic[layoutKey][last_pile_key];
-                                MASConstraint *c = make.top.greaterThanOrEqualTo(v.mas_bottom);
-                                [constraints addObject:c];
+                            if (lastPiles.count == 1) {
+                                for (NSString *last_pile_key in lastPiles) {
+                                    UIView *v = self.pileViewDic[layoutKey][last_pile_key];
+                                    MASConstraint *c = make.top.equalTo(v.mas_bottom);
+                                    [constraints addObject:c];
+                                }
+                            }
+                            else {
+                                for (NSString *last_pile_key in lastPiles) {
+                                    UIView *v = self.pileViewDic[layoutKey][last_pile_key];
+                                    MASConstraint *c = make.top.greaterThanOrEqualTo(v.mas_bottom);
+                                    [constraints addObject:c];
+                                }
                             }
                         }
                         else if (layout == QHPileViewManLayoutBottomLeft || layout == QHPileViewManLayoutBottomRight) {
-                            for (NSString *last_pile_key in lastPiles) {
-                                UIView *v = self.pileViewDic[layoutKey][last_pile_key];
-                                MASConstraint *c = make.bottom.greaterThanOrEqualTo(v.mas_top);
-                                [constraints addObject:c];
+                            if (lastPiles.count == 1) {
+                                for (NSString *last_pile_key in lastPiles) {
+                                    UIView *v = self.pileViewDic[layoutKey][last_pile_key];
+                                    MASConstraint *c = make.bottom.equalTo(v.mas_top);
+                                    [constraints addObject:c];
+                                }
+                            }
+                            else {
+                                for (NSString *last_pile_key in lastPiles) {
+                                    UIView *v = self.pileViewDic[layoutKey][last_pile_key];
+                                    MASConstraint *c = make.bottom.lessThanOrEqualTo(v.mas_top);
+                                    [constraints addObject:c];
+                                }
                             }
                         }
                     }
@@ -326,6 +368,7 @@
                             [constraints addObject:l];
                         }
                     }
+                    make.width.height.mas_lessThanOrEqualTo(0);
                 }];
                 NSString *key = piles[j];
                 [self.pileViewDic[layoutKey] setValue:pileV forKey:key];

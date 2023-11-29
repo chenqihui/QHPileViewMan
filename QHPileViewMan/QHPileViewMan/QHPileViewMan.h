@@ -31,6 +31,7 @@ typedef enum : NSUInteger {
 @property (nonatomic, strong, readonly) NSArray *pileKeys;
 
 - (instancetype)initWith:(UIView *)superV make:(struct QHPileViewMake)pileMake edge:(UIEdgeInsets)edge path:(NSString *)jsonPath;
+- (instancetype)initWith:(UIView *)superV make:(struct QHPileViewMake)pileMake edge:(UIEdgeInsets)edge path:(NSString *)jsonPath bLeftAlign:(BOOL)bLeft;
 - (void)setGlobalPile:(QHPileViewManLayout)layout edge:(UIEdgeInsets)edge;
 - (void)clean;
 - (BOOL)check:(NSString *)layoutKey p:(NSString *)pileKey;
@@ -40,6 +41,11 @@ typedef enum : NSUInteger {
 - (void)removeV:(UIView *)v;
 - (void)showV:(UIView *)v;
 - (void)hideV:(UIView *)v;
+
+// 临时增加
+- (void)test;
+- (void)updateTopPile:(UIView *)leftV edge:(CGFloat)w;
+- (UIView *)getPile:(NSString *)layoutKey pileKey:(NSString *)pileKey;
 
 @end
 
