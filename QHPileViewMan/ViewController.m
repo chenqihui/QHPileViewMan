@@ -71,6 +71,8 @@
     [self p_createView];
     [self p_testUI];
     [self p_test];
+    
+    [self.pileMan test];
 }
 
 - (UIView *)p_makeV:(NSString *)key layout:(QHPileViewManLayout)layout {
@@ -97,17 +99,17 @@
 }
 
 - (void)p_createView {
-    // Left
+    // Left top
     UIView *demo1 = [self p_makeV:@"demo1" layout:QHPileViewManLayoutTopLeft];
     BOOL ret = NO;
     demo1.cqh_addPile(nil).cqh_hidePile(NO).cqh_updateSize(CGSizeMake(60, 20));
     
     [self p_makeV:@"try" layout:QHPileViewManLayoutTopLeft];
-    [self p_makeV:@"link" layout:QHPileViewManLayoutTopLeft];
+    [self p_makeV:@"link2" layout:QHPileViewManLayoutTopLeft];
     [self p_makeV:@"series" layout:QHPileViewManLayoutTopLeft];
     [self p_makeV:@"ad" layout:QHPileViewManLayoutTopLeft];
 
-    // Right
+    // Right top
     UIView *demo2 = [self p_makeV:@"demo2" layout:QHPileViewManLayoutTopRight];
     ret = NO;
     demo2.cqh_addPile(&ret).cqh_hidePile(NO).cqh_updateSize(CGSizeMake(60, 20));
@@ -120,9 +122,19 @@
     
     // left bottom
     [self p_makeV:@"chat" layout:QHPileViewManLayoutBottomLeft];
-    [self p_makeV:@"ad3" layout:QHPileViewManLayoutBottomLeft];
+    [self p_makeV:@"input" layout:QHPileViewManLayoutBottomLeft];
+    // rigth bottom
     [self p_makeV:@"ad2" layout:QHPileViewManLayoutBottomRight];
     [self p_makeV:@"zan" layout:QHPileViewManLayoutBottomRight];
+    [self p_makeV:@"menu" layout:QHPileViewManLayoutBottomRight];
+    [self p_makeV:@"link" layout:QHPileViewManLayoutBottomRight];
+    [self p_makeV:@"zan2" layout:QHPileViewManLayoutBottomRight];
+    [self p_makeV:@"t1" layout:QHPileViewManLayoutBottomLeft];
+    
+    // top left symmetry
+    [self p_makeV:@"info" layout:QHPileViewManLayoutTopLeftSymmetry];
+    // bottom left symmetry
+    [self p_makeV:@"progress" layout:QHPileViewManLayoutBottomLeftSymmetry];
 }
 
 - (void)p_test {
@@ -137,14 +149,20 @@
     }
     UIView *view = self.viewDic[@"try"];
     view.cqh_updateSize(CGSizeMake(100, 10));
+    UIView *link = self.viewDic[@"link"];
+    if (link) { link.cqh_updateSize(CGSizeMake(100, 10)); }
+    CGFloat w = [UIScreen mainScreen].bounds.size.width - 60;
+    UIView *progress = self.viewDic[@"progress"];
+    if (progress) { progress.cqh_updateSize(CGSizeMake(w, 30)); }
+    UIView *info = self.viewDic[@"info"];
+    if (info) { info.cqh_updateSize(CGSizeMake(w, 30)); }
 }
 
 - (void)p_testUI {
     UIView *mainV = [UIView new];
     [self.view addSubview:mainV];
     [mainV mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(mainV.superview).mas_offset(-20);
-        make.centerX.equalTo(mainV.superview);
+        make.center.equalTo(mainV.superview);
         make.width.mas_equalTo(360);
     }];
     self.testView = mainV;
@@ -253,7 +271,6 @@
     else {
         view.cqh_hidePile(bHide).cqh_removePile();
     }
-    
 }
 
 @end

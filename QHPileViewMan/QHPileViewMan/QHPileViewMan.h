@@ -24,6 +24,8 @@ typedef enum : NSUInteger {
     QHPileViewManLayoutTopRight,
     QHPileViewManLayoutBottomLeft,
     QHPileViewManLayoutBottomRight,
+    QHPileViewManLayoutTopLeftSymmetry = QHPileViewManLayoutTopLeft,
+    QHPileViewManLayoutBottomLeftSymmetry = QHPileViewManLayoutBottomLeft,
 } QHPileViewManLayout;
 
 @interface QHPileViewMan : NSObject

@@ -171,6 +171,22 @@
     for (MASConstraint *constraint in constraints) {
         [constraint install];
     }
+    BOOL leftSymmetry = [subCfgDic[@"ls"] boolValue];
+    if (leftSymmetry) {
+        NSString *sLayoutKey = [NSString stringWithFormat:@"%lu", [v.cqhLayoutKey integerValue] + 1];
+        UIView *spileV = self.pileViewDic[sLayoutKey][v.cqhPileKey];
+        [v mas_updateConstraints:^(MASConstraintMaker *make) {
+            [self p_pointLeftSymmetry:v pile:spileV make:make];
+        }];
+        [spileV mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.width.equalTo(v.mas_width).mas_offset(subCfgDic ? ([subCfgDic[@"l"] integerValue] + [subCfgDic[@"r"] integerValue]) : 0);
+            make.height.equalTo(v.mas_height).mas_offset(subCfgDic ? ([subCfgDic[@"t"] integerValue] + [subCfgDic[@"b"] integerValue]) : 0);
+        }];
+        NSArray *constraints = self.pileConstraintsDic[sLayoutKey][v.cqhPileKey];
+        for (MASConstraint *constraint in constraints) {
+            [constraint install];
+        }
+    }
 }
 
 - (void)hideV:(UIView *)v {
@@ -199,6 +215,11 @@
     [self.bottomView mas_updateConstraints:^(MASConstraintMaker *make) {
         make.width.height.mas_equalTo(10);
     }];
+    for (NSDictionary *value in self.pileViewDic.allValues) {
+        for (UIView *v in value.allValues) {
+            v.backgroundColor = [UIColor redColor];
+        }
+    }
 }
 
 - (void)updateTopPile:(UIView *)leftV edge:(CGFloat)w {
@@ -368,7 +389,7 @@
                             [constraints addObject:l];
                         }
                     }
-                    make.width.height.mas_lessThanOrEqualTo(0);
+                    make.width.height.mas_greaterThanOrEqualTo(0);
                 }];
                 NSString *key = piles[j];
                 [self.pileViewDic[layoutKey] setValue:pileV forKey:key];
@@ -393,9 +414,6 @@
         }
     }
     NSUInteger layoutType = [v.cqhLayoutKey integerValue];
-    if ([v.cqhPileKey isEqualToString:@"beauty"]) {
-        NSLog(@"1");
-    }
     if (layoutType == QHPileViewManLayoutTopLeft) {
         make.top.equalTo(pileV).mas_offset(subCfgDic ? [subCfgDic[@"t"] integerValue] : 0);
         make.left.equalTo(pileV).mas_offset(subCfgDic ? [subCfgDic[@"l"] integerValue] : 0);
@@ -411,6 +429,22 @@
     else if (layoutType == QHPileViewManLayoutBottomRight) {
         make.bottom.equalTo(pileV).mas_offset(-(subCfgDic ? [subCfgDic[@"b"] integerValue] : 0));
         make.right.equalTo(pileV).mas_offset(-(subCfgDic ? [subCfgDic[@"r"] integerValue] : 0));
+    }
+}
+
+- (void)p_pointLeftSymmetry:(UIView *)v pile:(UIView *)pileV make:(MASConstraintMaker *)make {
+    NSUInteger layoutType = [v.cqhLayoutKey integerValue] + 1;
+    if (layoutType == QHPileViewManLayoutTopLeft) {
+        make.top.equalTo(pileV);
+    }
+    else if (layoutType == QHPileViewManLayoutTopRight) {
+        make.top.equalTo(pileV);
+    }
+    else if (layoutType == QHPileViewManLayoutBottomLeft) {
+        make.bottom.equalTo(pileV);
+    }
+    else if (layoutType == QHPileViewManLayoutBottomRight) {
+        make.bottom.equalTo(pileV);
     }
 }
 
