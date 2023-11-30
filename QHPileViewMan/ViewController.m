@@ -11,16 +11,18 @@
 
 #define kSegCtrTag 200
 
-@interface ViewController ()
+@interface ViewController () <UIPickerViewDelegate, UIPickerViewDataSource>
 
 @property (nonatomic, strong) UIView *viewTop;
 @property (nonatomic, strong) UIView *viewBottom;
 
 @property (nonatomic, strong) UIView *testView;
 @property (nonatomic, strong) UISlider *slider;
+@property (nonatomic, strong) UIPickerView *keyPV;
 
 @property (nonatomic, strong) NSMutableDictionary *viewDic;
 @property (nonatomic, strong) NSArray *viewKeys;
+@property (nonatomic) NSUInteger currentSelectKeyRow;
 
 @property (nonatomic, strong) QHPileViewMan *pileMan;
 
@@ -69,8 +71,11 @@
     self.viewKeys = [self.pileMan.pileKeys copy];
 
     [self p_createView];
-    [self p_testUI];
-    [self p_test];
+    [self p_addControlUI];
+    [self p_updateUI];
+    
+    [self.keyPV selectRow:0 inComponent:0 animated:NO];
+    self.currentSelectKeyRow = 0;
     
     [self.pileMan test];
 }
@@ -137,7 +142,7 @@
     [self p_makeV:@"progress" layout:QHPileViewManLayoutBottomLeftSymmetry];
 }
 
-- (void)p_test {
+- (void)p_updateUI {
     for (NSString *key in self.viewKeys) {
         UIView *view = self.viewDic[key];
         if (view) {
@@ -158,7 +163,7 @@
     if (info) { info.cqh_updateSize(CGSizeMake(w, 30)); }
 }
 
-- (void)p_testUI {
+- (void)p_addControlUI {
     UIView *mainV = [UIView new];
     [self.view addSubview:mainV];
     [mainV mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -167,34 +172,25 @@
     }];
     self.testView = mainV;
     
-    NSArray *list = self.viewKeys;
-    UISegmentedControl *segCtr = [[UISegmentedControl alloc] initWithItems:list];
-    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:[UIColor blackColor], NSForegroundColorAttributeName, [UIFont systemFontOfSize:6], NSFontAttributeName, nil];
-    [segCtr setTitleTextAttributes:dic forState:UIControlStateNormal];
-    segCtr.tag = kSegCtrTag + 1;
-    [mainV addSubview:segCtr];
-    [segCtr mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.left.right.equalTo(segCtr.superview);
-        make.height.mas_equalTo(30);
+    UIPickerView *keyPV = [UIPickerView new];
+    keyPV.backgroundColor = [UIColor colorWithWhite:0 alpha:0.3];
+    keyPV.tintColor = [UIColor greenColor];
+    keyPV.delegate = self;
+    keyPV.dataSource = self;
+    [mainV addSubview:keyPV];
+    [keyPV mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.left.right.equalTo(keyPV.superview);
+        make.height.mas_equalTo(200);
     }];
+    _keyPV = keyPV;
     
     NSArray *list2 = @[@"topleft", @"topright", @"bottomleft", @"bottomright"];
     UISegmentedControl *segCtr2 = [[UISegmentedControl alloc] initWithItems:list2];
     segCtr2.tag = kSegCtrTag + 2;
     [mainV addSubview:segCtr2];
     [segCtr2 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(segCtr.mas_bottom).mas_offset(10);
+        make.top.equalTo(keyPV.mas_bottom).mas_offset(10);
         make.left.right.equalTo(segCtr2.superview);
-        make.height.mas_equalTo(30);
-    }];
-    
-    NSArray *list3 = @[@"add", @"remove"];
-    UISegmentedControl *segCtr3 = [[UISegmentedControl alloc] initWithItems:list3];
-    segCtr3.tag = kSegCtrTag + 3;
-    [mainV addSubview:segCtr3];
-    [segCtr3 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(segCtr2.mas_bottom).mas_offset(10);
-        make.left.right.equalTo(segCtr3.superview);
         make.height.mas_equalTo(30);
     }];
     
@@ -203,7 +199,7 @@
     segCtr4.tag = kSegCtrTag + 4;
     [mainV addSubview:segCtr4];
     [segCtr4 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(segCtr3.mas_bottom).mas_offset(10);
+        make.top.equalTo(segCtr2.mas_bottom).mas_offset(10);
         make.left.right.equalTo(segCtr4.superview);
         make.height.mas_equalTo(30);
     }];
@@ -239,20 +235,18 @@
 #pragma mark - Action
 
 - (void)refreshAction {
-    UISegmentedControl *sc1 = [self.testView viewWithTag:kSegCtrTag + 1];
     UISegmentedControl *sc2 = [self.testView viewWithTag:kSegCtrTag + 2];
     UISegmentedControl *sc3 = [self.testView viewWithTag:kSegCtrTag + 3];
     UISegmentedControl *sc4 = [self.testView viewWithTag:kSegCtrTag + 4];
     
-    if (sc1.selectedSegmentIndex < 0 ||
-        sc2.selectedSegmentIndex < 0 ||
+    if (sc2.selectedSegmentIndex < 0 ||
         sc3.selectedSegmentIndex < 0 ||
         sc4.selectedSegmentIndex < 0) {
         return;
     }
     
     // 找到对应的 view
-    UIView *view = self.viewDic[self.viewKeys[sc1.selectedSegmentIndex]];
+    UIView *view = self.viewDic[self.viewKeys[self.currentSelectKeyRow]];
     
     NSString *layoutKey = [NSString stringWithFormat:@"%ld", (long)sc2.selectedSegmentIndex];
     // 提前判断 layout 是否符合配置
@@ -271,6 +265,30 @@
     else {
         view.cqh_hidePile(bHide).cqh_removePile();
     }
+}
+
+#pragma mark - UIPickerViewDelegate
+
+- (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component {
+    return 30;
+}
+
+- (nullable NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
+    return self.viewKeys[row];
+}
+
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
+    self.currentSelectKeyRow = row;
+}
+
+#pragma mark - UIPickerViewDataSource
+
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
+    return 1;
+}
+
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
+    return self.viewKeys.count;
 }
 
 @end
