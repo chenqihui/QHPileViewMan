@@ -86,7 +86,7 @@
     view.layer.borderWidth = 1;
     view.layer.borderColor = [UIColor orangeColor].CGColor;
     view.hidden = YES;
-    BOOL ret = [view cqh_makePile:self.pileMan layout:layout pile:key];
+    BOOL ret = [view cqh_pile_make:self.pileMan layout:layout pile:key];
     if (!ret) {
         NSLog(@"cqh_makePile error>%lu>%@", (unsigned long)layout, key);
     }
@@ -100,14 +100,15 @@
         make.top.left.bottom.right.equalTo(titleL.superview);
     }];
     [self.viewDic setValue:view forKey:key];
+    [view cqh_pile_add];
     return view;
 }
 
 - (void)p_createView {
     // Left top
     UIView *demo1 = [self p_makeV:@"demo1" layout:QHPileViewManLayoutTopLeft];
-    BOOL ret = NO;
-    demo1.cqh_addPile(nil).cqh_hidePile(NO).cqh_updateSize(CGSizeMake(60, 20));
+    [demo1 cqh_pile_updateSize:CGSizeMake(60, 20)];
+    demo1.cqhPileHidden = NO;
     
     [self p_makeV:@"try" layout:QHPileViewManLayoutTopLeft];
     [self p_makeV:@"link2" layout:QHPileViewManLayoutTopLeft];
@@ -116,8 +117,8 @@
 
     // Right top
     UIView *demo2 = [self p_makeV:@"demo2" layout:QHPileViewManLayoutTopRight];
-    ret = NO;
-    demo2.cqh_addPile(&ret).cqh_hidePile(NO).cqh_updateSize(CGSizeMake(60, 20));
+    [demo2 cqh_pile_updateSize:CGSizeMake(60, 20)];
+    demo2.cqhPileHidden = NO;
     
     // viewSeries
     // viewAd
@@ -145,22 +146,18 @@
 - (void)p_updateUI {
     for (NSString *key in self.viewKeys) {
         UIView *view = self.viewDic[key];
-        if (view) {
-            if ([view cqh_directCheckPile]) {
-                BOOL ret = NO;
-                view.cqh_addPile(&ret).cqh_hidePile(NO).cqh_updateSize(CGSizeMake(60, 20));
-            }
-        }
+        [view cqh_pile_updateSize:CGSizeMake(60, 20)];
+        view.cqhPileHidden = NO;
     }
     UIView *view = self.viewDic[@"try"];
-    view.cqh_updateSize(CGSizeMake(100, 10));
+    [view cqh_pile_updateSize:CGSizeMake(100, 10)];
     UIView *link = self.viewDic[@"link"];
-    if (link) { link.cqh_updateSize(CGSizeMake(100, 10)); }
+    [link cqh_pile_updateSize:CGSizeMake(100, 10)];
     CGFloat w = [UIScreen mainScreen].bounds.size.width - 60;
     UIView *progress = self.viewDic[@"progress"];
-    if (progress) { progress.cqh_updateSize(CGSizeMake(w, 30)); }
+    [progress cqh_pile_updateSize:CGSizeMake(w, 30)];
     UIView *info = self.viewDic[@"info"];
-    if (info) { info.cqh_updateSize(CGSizeMake(w, 30)); }
+    [info cqh_pile_updateSize:CGSizeMake(w - 20, 30)];
 }
 
 - (void)p_addControlUI {
@@ -236,11 +233,9 @@
 
 - (void)refreshAction {
     UISegmentedControl *sc2 = [self.testView viewWithTag:kSegCtrTag + 2];
-    UISegmentedControl *sc3 = [self.testView viewWithTag:kSegCtrTag + 3];
     UISegmentedControl *sc4 = [self.testView viewWithTag:kSegCtrTag + 4];
     
     if (sc2.selectedSegmentIndex < 0 ||
-        sc3.selectedSegmentIndex < 0 ||
         sc4.selectedSegmentIndex < 0) {
         return;
     }
@@ -256,14 +251,9 @@
     view.cqhLayoutKey = layoutKey;
     
     BOOL bHide = !(sc4.selectedSegmentIndex == 0);
-    if (sc3.selectedSegmentIndex == 0) {
-        if ([view cqh_directCheckPile]) {
-            BOOL ret = NO;
-            view.cqh_addPile(&ret).cqh_hidePile(bHide).cqh_updateSize(CGSizeMake(_slider.value * 2, _slider.value));
-        }
-    }
-    else {
-        view.cqh_hidePile(bHide).cqh_removePile();
+    view.cqhPileHidden = bHide;
+    if (!bHide) {
+        [view cqh_pile_updateSize:CGSizeMake(_slider.value * 2, _slider.value)];
     }
 }
 

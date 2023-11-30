@@ -17,6 +17,8 @@ static const char *CQHLayoutKey = "CQHLayoutKey";
 static const char *CQHPileKey = "CQHPileKey";
 static const char *CQHPileManKey = "CQHPileManKey";
 
+static const char *CQHPileHiddenKey = "CQHPileHiddenKey";
+
 @implementation UIView (QHPileView)
 
 - (NSString *)cqhLayoutKey {
@@ -48,9 +50,24 @@ static const char *CQHPileManKey = "CQHPileManKey";
     objc_setAssociatedObject(self, CQHPileManKey, cqhPileMan, OBJC_ASSOCIATION_ASSIGN);
 }
 
+- (BOOL)cqhPileHidden {
+    return [objc_getAssociatedObject(self, CQHPileHiddenKey) boolValue];
+}
+
+- (void)setCqhPileHidden:(BOOL)hidden {
+    objc_setAssociatedObject(self, CQHPileHiddenKey, @(hidden), OBJC_ASSOCIATION_ASSIGN);
+    if (hidden) {
+        [self.cqhPileMan hideV:self];
+    }
+    else {
+        [self.cqhPileMan showV:self];
+    }
+    self.hidden = hidden;
+}
+
 #pragma mark - Public
 
-- (BOOL)cqh_makePile:(QHPileViewMan * _Nullable)man layout:(QHPileViewManLayout)layout pile:(NSString *)pileKey {
+- (BOOL)cqh_pile_make:(QHPileViewMan * _Nullable)man layout:(QHPileViewManLayout)layout pile:(NSString *)pileKey {
     if (man == nil && self.cqhPileMan == nil) {
         return NO;
     }
@@ -66,60 +83,23 @@ static const char *CQHPileManKey = "CQHPileManKey";
     return ret;
 }
 
-- (BOOL)cqh_directCheckPile {
+- (BOOL)cqh_pile_check {
     return [self.cqhPileMan checkV:self];
 }
 
-// 链式调用不能返回 nil，否则下一个调用者会导致崩溃
-
-- (UIView * (^)(BOOL * _Nullable ret))cqh_checkPile {
-    return ^id(BOOL *ret) {
-        BOOL r = [self.cqhPileMan checkV:self];
-        if (ret != nil) {
-            *ret = r;
-        }
-        return self;
-    };
+- (BOOL)cqh_pile_add {
+    return [self.cqhPileMan addV:self];;
 }
 
-- (UIView * (^)(BOOL * _Nullable ret))cqh_addPile {
-    return ^id(BOOL *ret) {
-        BOOL r = [self.cqhPileMan addV:self];
-        if (ret != nil) {
-            *ret = r;
-        }
-        return self;
-    };
+- (void)cqh_pile_remove {
+    [self.cqhPileMan removeV:self];;
 }
 
-- (UIView * (^)(void))cqh_removePile {
-    return ^id {
-        [self.cqhPileMan removeV:self];
-        return self;
-    };
-}
-
-- (UIView * (^)(BOOL))cqh_hidePile {
-    return ^id(BOOL bHide) {
-        if (bHide) {
-            [self.cqhPileMan hideV:self];
-        }
-        else {
-            [self.cqhPileMan showV:self];
-        }
-        self.hidden = bHide;
-        return self;
-    };
-}
-
-- (UIView * (^)(CGSize))cqh_updateSize {
-    return ^id(CGSize size) {
-        [self mas_updateConstraints:^(MASConstraintMaker *make) {
-            make.width.mas_equalTo(size.width);
-            make.height.mas_equalTo(size.height);
-        }];
-        return self;
-    };
+- (void)cqh_pile_updateSize:(CGSize)size {
+    [self mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.width.mas_equalTo(size.width);
+        make.height.mas_equalTo(size.height);
+    }];
 }
 
 @end
