@@ -17,8 +17,6 @@ static const char *CQHLayoutKey = "CQHLayoutKey";
 static const char *CQHPileKey = "CQHPileKey";
 static const char *CQHPileManKey = "CQHPileManKey";
 
-static const char *CQHPileHiddenKey = "CQHPileHiddenKey";
-
 @implementation UIView (QHPileView)
 
 - (NSString *)cqhLayoutKey {
@@ -50,12 +48,7 @@ static const char *CQHPileHiddenKey = "CQHPileHiddenKey";
     objc_setAssociatedObject(self, CQHPileManKey, cqhPileMan, OBJC_ASSOCIATION_ASSIGN);
 }
 
-- (BOOL)cqhPileHidden {
-    return [objc_getAssociatedObject(self, CQHPileHiddenKey) boolValue];
-}
-
 - (void)setCqhPileHidden:(BOOL)hidden {
-    objc_setAssociatedObject(self, CQHPileHiddenKey, @(hidden), OBJC_ASSOCIATION_ASSIGN);
     if (hidden) {
         [self.cqhPileMan hideV:self];
     }
