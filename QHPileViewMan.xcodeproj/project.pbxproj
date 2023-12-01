@@ -84,6 +84,7 @@
 		74D9B6B22840DA54009DB850 /* QHPileViewMan */ = {
 			isa = PBXGroup;
 			children = (
+				7476D33728504C2700F59D59 /* JSON */,
 				74D9B6CC2840E616009DB850 /* QHPileViewMan */,
 				74D9B6B32840DA54009DB850 /* AppDelegate.h */,
 				74D9B6B42840DA54009DB850 /* AppDelegate.m */,
@@ -101,7 +102,6 @@
 		74D9B6CC2840E616009DB850 /* QHPileViewMan */ = {
 			isa = PBXGroup;
 			children = (
-				7476D33728504C2700F59D59 /* JSON */,
 				74D9B6CD2840E627009DB850 /* QHPileViewMan.h */,
 				74D9B6CE2840E627009DB850 /* QHPileViewMan.m */,
 				744607412846295600217126 /* UIView+QHPileView.h */,
