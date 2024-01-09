@@ -58,6 +58,8 @@ static const char *CQHPileManKey = "CQHPileManKey";
     self.hidden = hidden;
 }
 
+- (BOOL)cqhPileHidden { return self.hidden; }
+
 #pragma mark - Public
 
 - (BOOL)cqh_pile_make:(QHPileViewMan * _Nullable)man layout:(QHPileViewManLayout)layout pile:(NSString *)pileKey {

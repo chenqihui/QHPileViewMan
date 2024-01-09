@@ -44,10 +44,15 @@ typedef enum : NSUInteger {
 - (void)showV:(UIView *)v;
 - (void)hideV:(UIView *)v;
 
+- (UIView *)getPileBy:(QHPileViewManLayout)layout key:(NSString *)pileKey;
+- (NSDictionary *)getCfgDic:(QHPileViewManLayout)layout key:(NSString *)pileKey;
+
 // 临时增加
 - (void)test;
 - (void)updateTopPile:(UIView *)leftV edge:(CGFloat)w;
-- (UIView *)getPile:(NSString *)layoutKey pileKey:(NSString *)pileKey;
+
+- (void)addKVO:(id)target;
+- (void)removeKVO:(id)target;
 
 @end
 

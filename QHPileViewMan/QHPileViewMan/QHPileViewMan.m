@@ -30,6 +30,12 @@
 
 @implementation QHPileViewMan
 
+- (void)dealloc {
+#if DEBUG
+    NSLog(@"%s", __FUNCTION__);
+#endif
+}
+
 - (instancetype)initWith:(UIView *)superV make:(struct QHPileViewMake)pileMake edge:(UIEdgeInsets)edge path:(NSString *)jsonPath {
     return [self initWith:superV make:pileMake edge:edge path:jsonPath bLeftAlign:NO];
 }
@@ -169,6 +175,7 @@
     }];
     NSArray *constraints = self.pileConstraintsDic[v.cqhLayoutKey][v.cqhPileKey];
     for (MASConstraint *constraint in constraints) {
+        [constraint uninstall];
         [constraint install];
     }
     BOOL leftSymmetry = [subCfgDic[@"ls"] boolValue];
@@ -184,9 +191,11 @@
         }];
         NSArray *constraints = self.pileConstraintsDic[sLayoutKey][v.cqhPileKey];
         for (MASConstraint *constraint in constraints) {
+            [constraint uninstall];
             [constraint install];
         }
     }
+    pileV.hidden = NO;
 }
 
 - (void)hideV:(UIView *)v {
@@ -199,13 +208,29 @@
     }];
     
     [pileV mas_remakeConstraints:^(MASConstraintMaker *make) {
-        make.width.mas_equalTo(0).mas_offset(0);
-        make.height.mas_equalTo(0).mas_offset(0);
+        make.width.height.mas_greaterThanOrEqualTo(0);
     }];
     NSArray *constraints = self.pileConstraintsDic[v.cqhLayoutKey][v.cqhPileKey];
     for (MASConstraint *constraint in constraints) {
+        [constraint uninstall];
         [constraint install];
     }
+    pileV.hidden = YES;
+}
+
+- (UIView *)getPileBy:(QHPileViewManLayout)layout key:(NSString *)pileKey {
+    NSString *layoutKey = [NSString stringWithFormat:@"%lu", (unsigned long)layout];
+    UIView *pileV = self.pileViewDic[layoutKey][pileKey];
+    return pileV;
+}
+
+- (NSDictionary *)getCfgDic:(QHPileViewManLayout)layout key:(NSString *)pileKey {
+    NSString *layoutKey = [NSString stringWithFormat:@"%lu", (unsigned long)layout];
+    NSDictionary *subCfgDic = self.pileKeyLayoutSubCfgDic[layoutKey][pileKey];
+    if (subCfgDic == nil || subCfgDic.count <= 0) {
+        subCfgDic = self.pileEdgeDic[layoutKey];
+    }
+    return subCfgDic;
 }
 
 - (void)test {
@@ -228,9 +253,42 @@
     }];
 }
 
-- (UIView *)getPile:(NSString *)layoutKey pileKey:(NSString *)pileKey {
-    UIView *pileV = self.pileViewDic[layoutKey][pileKey];
-    return pileV;
+- (void)addKVO:(id)target {
+    NSDictionary *pileCfgDic = self.pileKeyLayoutDic;
+    NSArray *layoutKeys = pileCfgDic.allKeys;
+    for (NSString *layoutKey in layoutKeys) {
+        NSArray *p_key_rows = pileCfgDic[layoutKey];
+        for (int i = 0; i < p_key_rows.count; i++) {
+            NSArray *piles = p_key_rows[i];
+            for (int j = 0; j < piles.count; j++) {
+                NSString *key = piles[j];
+                NSDictionary *cfg = self.pileKeyLayoutSubCfgDic[layoutKey][key];
+                if (cfg != nil && [cfg[@"kvo"] boolValue]) {
+                    UIView *pileV = self.pileViewDic[layoutKey][key];
+                    [pileV addObserver:target forKeyPath:@"hidden" options:NSKeyValueObservingOptionNew context:nil];
+                }
+            }
+        }
+    }
+}
+
+- (void)removeKVO:(id)target {
+    NSDictionary *pileCfgDic = self.pileKeyLayoutDic;
+    NSArray *layoutKeys = pileCfgDic.allKeys;
+    for (NSString *layoutKey in layoutKeys) {
+        NSArray *p_key_rows = pileCfgDic[layoutKey];
+        for (int i = 0; i < p_key_rows.count; i++) {
+            NSArray *piles = p_key_rows[i];
+            for (int j = 0; j < piles.count; j++) {
+                NSString *key = piles[j];
+                NSDictionary *cfg = self.pileKeyLayoutSubCfgDic[layoutKey][key];
+                if (cfg != nil && [cfg[@"kvo"] boolValue]) {
+                    UIView *pileV = self.pileViewDic[layoutKey][key];
+                    [pileV removeObserver:target forKeyPath:@"hidden" context:nil];
+                }
+            }
+        }
+    }
 }
 
 #pragma mark - Private
@@ -320,6 +378,7 @@
                 UIView *pileV = [UIView new];
                 pileV.backgroundColor = [UIColor clearColor];
                 pileV.userInteractionEnabled = NO;
+                pileV.hidden = YES;
                 [superV addSubview:pileV];
                 NSMutableArray<MASConstraint *> *constraints = [NSMutableArray new];
 //                NSLog(@"chen>%i>%i", i, j);
