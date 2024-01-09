@@ -182,17 +182,20 @@
     if (leftSymmetry) {
         NSString *sLayoutKey = [NSString stringWithFormat:@"%lu", [v.cqhLayoutKey integerValue] + 1];
         UIView *spileV = self.pileViewDic[sLayoutKey][v.cqhPileKey];
-        [v mas_updateConstraints:^(MASConstraintMaker *make) {
-            [self p_pointLeftSymmetry:v pile:spileV make:make];
-        }];
-        [spileV mas_remakeConstraints:^(MASConstraintMaker *make) {
-            make.width.equalTo(v.mas_width).mas_offset(subCfgDic ? ([subCfgDic[@"l"] integerValue] + [subCfgDic[@"r"] integerValue]) : 0);
-            make.height.equalTo(v.mas_height).mas_offset(subCfgDic ? ([subCfgDic[@"t"] integerValue] + [subCfgDic[@"b"] integerValue]) : 0);
-        }];
-        NSArray *constraints = self.pileConstraintsDic[sLayoutKey][v.cqhPileKey];
-        for (MASConstraint *constraint in constraints) {
-            [constraint uninstall];
-            [constraint install];
+        if (spileV != nil) {
+            [v mas_updateConstraints:^(MASConstraintMaker *make) {
+                [self p_pointLeftSymmetry:v pile:spileV make:make];
+            }];
+            [spileV mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.width.equalTo(v.mas_width).mas_offset(subCfgDic ? ([subCfgDic[@"l"] integerValue] + [subCfgDic[@"r"] integerValue]) : 0);
+                make.height.equalTo(v.mas_height).mas_offset(subCfgDic ? ([subCfgDic[@"t"] integerValue] + [subCfgDic[@"b"] integerValue]) : 0);
+            }];
+            NSArray *constraints = self.pileConstraintsDic[sLayoutKey][v.cqhPileKey];
+            for (MASConstraint *constraint in constraints) {
+                [constraint uninstall];
+                [constraint install];
+            }
+            spileV.hidden = NO;
         }
     }
     pileV.hidden = NO;
@@ -214,6 +217,23 @@
     for (MASConstraint *constraint in constraints) {
         [constraint uninstall];
         [constraint install];
+    }
+    NSDictionary *subCfgDic = self.pileKeyLayoutSubCfgDic[v.cqhLayoutKey][v.cqhPileKey];
+    BOOL leftSymmetry = [subCfgDic[@"ls"] boolValue];
+    if (leftSymmetry) {
+        NSString *sLayoutKey = [NSString stringWithFormat:@"%lu", [v.cqhLayoutKey integerValue] + 1];
+        UIView *spileV = self.pileViewDic[sLayoutKey][v.cqhPileKey];
+        if (spileV != nil) {
+            [spileV mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.width.height.mas_greaterThanOrEqualTo(0);
+            }];
+            NSArray *constraints = self.pileConstraintsDic[sLayoutKey][v.cqhPileKey];
+            for (MASConstraint *constraint in constraints) {
+                [constraint uninstall];
+                [constraint install];
+            }
+            spileV.hidden = YES;
+        }
     }
     pileV.hidden = YES;
 }
@@ -242,7 +262,7 @@
     }];
     for (NSDictionary *value in self.pileViewDic.allValues) {
         for (UIView *v in value.allValues) {
-            v.backgroundColor = [UIColor redColor];
+            v.backgroundColor = [UIColor orangeColor];
         }
     }
 }

@@ -241,7 +241,8 @@
     }
     
     // 找到对应的 view
-    UIView *view = self.viewDic[self.viewKeys[self.currentSelectKeyRow]];
+    NSString *key = self.viewKeys[self.currentSelectKeyRow];
+    UIView *view = self.viewDic[key];
     
     NSString *layoutKey = [NSString stringWithFormat:@"%ld", (long)sc2.selectedSegmentIndex];
     // 提前判断 layout 是否符合配置
@@ -252,8 +253,14 @@
     
     BOOL bHide = !(sc4.selectedSegmentIndex == 0);
     view.cqhPileHidden = bHide;
+    
+    NSDictionary *cfg = [self.pileMan getCfgDic:[layoutKey integerValue] key:key];
     if (!bHide) {
-        [view cqh_pile_updateSize:CGSizeMake(_slider.value * 2, _slider.value)];
+        BOOL leftSymmetry = [cfg[@"ls"] boolValue];
+        if (leftSymmetry)
+            [view cqh_pile_updateSize:CGSizeMake(self.view.frame.size.width * 0.8, _slider.value)];
+        else
+            [view cqh_pile_updateSize:CGSizeMake(_slider.value * 2, _slider.value)];
     }
 }
 
